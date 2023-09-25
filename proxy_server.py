@@ -5,32 +5,32 @@ BYTES_TO_READ = 4096
 PROXY_SERVER_HOST = "127.0.0.1"
 PROXY_SERVER_PORT = 8080
 
-def send_request(host, port, request):
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
-        client_socket.connect((host,port))
-        client_socket.send(request)
-        client_socket.shutdown(socket.SHUT_WR)
+def send_request(host, port, request): # send client's request to host:port (server)
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket: # init client socket 
+        client_socket.connect((host,port)) # connect socket to host:port
+        client_socket.send(request) # send request
+        client_socket.shutdown(socket.SHUT_WR) # shutdown socket.
 
-        data = client_socket.recv(BYTES_TO_READ)
+        data = client_socket.recv(BYTES_TO_READ) # get server response
         result = b'' + data
-        while len(data) > 0:
+        while len(data) > 0: # read until data termininates 
             data = client_socket.recv(BYTES_TO_READ)
             result += data
-        return result
+        return result # return response 
     
 def handle_connection(conn, addr):
     with conn:
-        print(f"Connected by {addr}")
+        print(f"Connected by {addr}") 
 
         request = b''
-        while True:
-            data = conn.recv(BYTES_TO_READ)
-            if not data:
+        while True: # while client keeps socket open
+            data = conn.recv(BYTES_TO_READ) # read some data from socket
+            if not data: # break if socket terminates
                 break
-            print(data)
+            print(data) # print data 
             request += data
-        response = send_request("www.google.com", 80, request)
-        conn.sendall(response)
+        response = send_request("www.google.com", 80, request) # send data as request to www.google.com
+        conn.sendall(response) # return response from www.google.com back to client
 
 def start_server():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
